@@ -37,32 +37,36 @@ function draw() {
   background(COLORS.background);
   randomSeed(grid.seed);
 
-  const movement = getMovement();
+  const movement = (sin(frameCount * SETTINGS.animationSpeed) + 1) / 2;
   grid.depth = 0;
 
   drawGrid(0, 0, grid.columns, grid.rows, width, movement);
 }
 
-function getMovement() {
-  return (sin(frameCount * SETTINGS.animationSpeed) + 1) / 2;
-}
-
 function drawGrid(x, y, cols, rows, size, movement) {
   const cellSize = size / cols;
+  const colorCache = new Map();
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const posX = x + col * cellSize;
       const posY = y + row * cellSize;
+      const colorIndex = getColorIndex(col, row, colorCache);
 
-      drawCell(posX, posY, cellSize, movement, col, row);
+      drawCell(posX, posY, cellSize, movement, colorIndex);
     }
   }
 }
 
-function drawCell(x, y, size, movement, col, row) {
-  const colorIndex = getColorIndex(col, row);
+function getColorIndex(col, row, cache) {
+  const key = `${col},${row}`;
+  if (!cache.has(key)) {
+    cache.set(key, (col + row + floor(random(0, 4))) % COLORS.palette.length);
+  }
+  return cache.get(key);
+}
 
+function drawCell(x, y, size, movement, colorIndex) {
   fill(COLORS.palette[colorIndex]);
   rect(x, y, size, size);
 
@@ -75,10 +79,6 @@ function drawCell(x, y, size, movement, col, row) {
 
   fill(COLORS.palette[(colorIndex + 1) % COLORS.palette.length]);
   drawFractal(x, y, size, movement);
-}
-
-function getColorIndex(col, row) {
-  return (col + row + floor(random(0, 4))) % COLORS.palette.length;
 }
 
 function shouldSubdivide(size) {
@@ -104,7 +104,7 @@ function drawFractal(x, y, size, movement) {
 
   placements.forEach(({x, y}) => rect(x, y, nextSize, nextSize));
 
-  if (random() < SETTINGS.subdivideChance) {
+  if (random() < SETTINGS.subdivideChance && nextSize >= SETTINGS.minModuleSize) {
     placements.forEach(({x, y}) => drawFractal(x, y, nextSize, movement));
   }
 }
