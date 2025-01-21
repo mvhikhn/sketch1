@@ -20,7 +20,7 @@ let grid = {
 };
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(700, 600);  
   strokeJoin(ROUND);
 
   grid.columns = floor(random(5, 8));
@@ -49,8 +49,7 @@ function getMovement() {
 
 function drawGrid(x, y, cols, rows, size, movement) {
   const cellSize = size / cols;
-  const colorCache = new Map(); // Cache color indices to avoid recalculating
-
+  const colorCache = new Map();
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const posX = x + col * cellSize;
@@ -77,7 +76,7 @@ function drawCell(x, y, size, movement, colorIndex) {
 
   if (shouldSubdivide(size)) {
     grid.depth++;
-    drawGrid(x, y, 2, 2, size, movement); // Subdivide the grid
+    drawGrid(x, y, 2, 2, size, movement); 
     grid.depth--;
     return;
   }
@@ -113,3 +112,4 @@ function drawFractal(x, y, size, movement) {
     placements.forEach(({x, y}) => drawFractal(x, y, nextSize, movement));
   }
 }
+
