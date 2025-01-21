@@ -37,20 +37,25 @@ function draw() {
   background(COLORS.background);
   randomSeed(grid.seed);
 
-  const movement = (sin(frameCount * SETTINGS.animationSpeed) + 1) / 2;
+  const movement = getMovement();
   grid.depth = 0;
 
   drawGrid(0, 0, grid.columns, grid.rows, width, movement);
 }
 
+function getMovement() {
+  return (sin(frameCount * SETTINGS.animationSpeed) + 1) / 2;
+}
+
 function drawGrid(x, y, cols, rows, size, movement) {
   const cellSize = size / cols;
-  const colorCache = new Map();
+  const colorCache = new Map(); // Cache color indices to avoid recalculating
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const posX = x + col * cellSize;
       const posY = y + row * cellSize;
+
       const colorIndex = getColorIndex(col, row, colorCache);
 
       drawCell(posX, posY, cellSize, movement, colorIndex);
@@ -72,7 +77,7 @@ function drawCell(x, y, size, movement, colorIndex) {
 
   if (shouldSubdivide(size)) {
     grid.depth++;
-    drawGrid(x, y, 2, 2, size, movement);
+    drawGrid(x, y, 2, 2, size, movement); // Subdivide the grid
     grid.depth--;
     return;
   }
