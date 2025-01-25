@@ -20,17 +20,22 @@ let grid = {
 };
 
 function setup() {
-  createCanvas(700, 600);  
+  const canvas = createCanvas(windowWidth, windowHeight);
+  canvas.elt.style.display = 'block';
   strokeJoin(ROUND);
 
-  grid.columns = floor(random(5, 8));
-  grid.moduleSize = width / grid.columns;
-  grid.rows = ceil(height / grid.moduleSize);
+  initializeGrid();
   grid.seed = random(1000);
 
   stroke(COLORS.border);
   strokeWeight(2);
   frameRate(60);
+}
+
+function initializeGrid() {
+  grid.columns = floor(random(5, 8));
+  grid.moduleSize = width / grid.columns;
+  grid.rows = ceil(height / grid.moduleSize);
 }
 
 function draw() {
@@ -43,6 +48,11 @@ function draw() {
   drawGrid(0, 0, grid.columns, grid.rows, width, movement);
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  initializeGrid();
+}
+
 function getMovement() {
   return (sin(frameCount * SETTINGS.animationSpeed) + 1) / 2;
 }
@@ -50,13 +60,12 @@ function getMovement() {
 function drawGrid(x, y, cols, rows, size, movement) {
   const cellSize = size / cols;
   const colorCache = new Map();
+  
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const posX = x + col * cellSize;
       const posY = y + row * cellSize;
-
       const colorIndex = getColorIndex(col, row, colorCache);
-
       drawCell(posX, posY, cellSize, movement, colorIndex);
     }
   }
@@ -76,7 +85,7 @@ function drawCell(x, y, size, movement, colorIndex) {
 
   if (shouldSubdivide(size)) {
     grid.depth++;
-    drawGrid(x, y, 2, 2, size, movement); 
+    drawGrid(x, y, 2, 2, size, movement);
     grid.depth--;
     return;
   }
@@ -112,4 +121,3 @@ function drawFractal(x, y, size, movement) {
     placements.forEach(({x, y}) => drawFractal(x, y, nextSize, movement));
   }
 }
-
